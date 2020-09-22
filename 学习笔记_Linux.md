@@ -205,13 +205,76 @@
     - `>>`:追加
 
 2. 同时重定向stdout和stderr到同一个文件     
-    Command > both 2 >&1     
-    Command & > both(bash 4支持)
-   同时重定向stdout,stderr到不同的文件  
-    command > out 2 > err
+    Command > both 2 >&1 (反过来不行，&是转义符：把2标准错误重定向到1标准输出)     
+    Command & > both(bash 4支持)        
+   同时重定向stdout,stderr到不同的文件        
+    command > out 2 > err       
 
-3. 
-   
+3. 管道     
+    经常需要将一个命令的输出内容，给另一个命令作为输入的内容进行处理        
+    例：ps -ef | grep python        
+
+4. 环境变量     
+    - 什么是shell变量   
+        a=1;b=2 有名字的对象    echo $a：查看变量的值       
+    - 什么是shell环境变量       
+        特殊意义的变量，用来影响进程的行为，可以传递给子进程  
+    - printenv：查看所有环境变量   
+      echo $PATH：查看PATH环境变量  
+      export PATH=./:$PATH(将当前路径./加入环境变量)：临时有效，此时再执行一下source .bash_profile，就可以永久有效
+
+      vim  .bash_profile:将文件里的PATH变量修改：永久有效            
+    
+
+## 网络接口配置     
+1. ifconfig 
+
+2. 禁用、启用网络接口   
+    - ifdown eth0 / ifup eth0    
+    - ifconfig eth0 down / ifconfig eth0 up
+
+3. 直接查看IP地址   
+    ip addr ：显示IPV4和IPV6地址        
+    ip -4 addr      
+    ip -6 addr   
+
+4. 命令行方式配置IP（IP对应网络接口，而不是网卡)
+    - ifconfig eth0 192.168.79.10 netmask 255.255.255.0 up      
+        **重启就会失效**    
+        eth0一般对应的是第一个网卡，192.16.0.1是给eth0配置的ip地址      
+        netmask 255.255.255.0 配置的是子网掩码，不加这个命令表示不修改子网掩码      
+        up是表示立即激活，现在的版本也可不加                 
+    - 一块网卡配置多个IP地址    
+        ifconfig eth0:1 192.168.79.11 netmask 255.255.255.0      
+        ifconfig eth0:2 192.168.79.12 netmask 255.255.255.0     
+
+    - 永久生效的配置方法：修改/etc/sysconfig/network-scripts/ifcfg-eth0文件 
+        ```
+        DEVICE=eth0             #物理设备名     
+        TYPE=Ethernet       
+        HWADDR="00:0C:29:1B:8A:2E"
+        BOOTPROTO:static        #[static|dhcp]      
+        IPADDR=192.168.79.111   #IP地址
+        NETMASK=255.255.255.0   #掩码值
+        NETWORK=192.168.79.0    #网络地址
+        GATEWAY=192.168.79.1    #网关地址
+        ONBOOT=yes
+        NM_CONTROLLED=no    
+        ```
+        修改完内容： service network restart    
+        建议：每种配置脚本都新创建一个做备份    
+
+5. Ping命令     
+    - 连通性检查；网速检查  
+
+    - ping -c <测试数据包数量> <目的主机地址>   
+        例如：ping www.163.com  
+        关注time字段
+
+6. 域名查询：
+    - nslookup <域名>
+    - host <域名>
+
 
 
 
